@@ -43,7 +43,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -61,7 +61,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -79,7 +79,7 @@ jobs:
 
   test-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -89,12 +89,12 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm test
+            npm run test
       - notify_on_failure
 
   test-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -104,11 +104,11 @@ jobs:
           command: |
             cd backend
             npm install
-            npm test
+            npm run test
       - notify_on_failure
   scan-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -125,7 +125,7 @@ jobs:
 
   scan-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
