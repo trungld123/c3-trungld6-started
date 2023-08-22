@@ -138,6 +138,7 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
+            exit 1
       - notify_on_failure
 
   #   deploy-infrastructure:
