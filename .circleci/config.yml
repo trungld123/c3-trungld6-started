@@ -23,21 +23,17 @@ commands:
 revert-migrations:
   description: Revert the last migration if successfully run in the current workflow.
   parameters:
-    # Add parameter here
+    workflow_id:
+      type: string
   steps:
     - run:
         name: Revert migrations
-        # Add when this will run
+        when: on_fail
         command: |
-          # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-          SUCCESS = 1
-          if(( $SUCCESS==1 ));
-          then
-          #  cd ~/project/backend
-          #  npm install
-          #  Add revert code here. You can find this in the Getting Started section.
-            exit 1
-          fi
+          cd ~/project/backend
+          npm install
+          npm run build
+          npm run migrations:revert
 
 jobs:
   build-frontend:
@@ -216,11 +212,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-
-            # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            # unzip -qq awscliv2.zip
-            # sudo ./aws/install
-            apk add --update --no-cache tar gzip nodejs npm aws-cli curl
+            sudo apt install -y tar gzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -qq awscliv2.zip
+            sudo ./aws/install
       - restore_cache:
           keys: [backend-build]
       - attach_workspace:
@@ -240,26 +235,40 @@ jobs:
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
-  #   deploy-frontend:
-  #     docker:
-  #       # Docker image here that supports AWS CLI
-  #     steps:
-  #       # Checkout code from git
-  #       - run:
-  #           name: Install dependencies
-  #           command: |
-  #             # your code here
-  #       - run:
-  #           name: Get backend url
-  #           command: |
-  #             # your code here
-  #             export API_URL="http://${BACKEND_IP}:3030"
-  #             echo "${API_URL}"
-  #       - run:
-  #           name: Deploy frontend objects
-  #           command: |
-  #             # your code here
-  #       # Here's where you will add some code to rollback on failure
+  deploy-frontend:
+    docker:
+      - image: python:3.7-alpine3.16
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update --no-cache tar gzip nodejs npm aws-cli
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo "API_URL=http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   #   deploy-backend:
   #     docker:
