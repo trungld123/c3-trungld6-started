@@ -194,7 +194,6 @@ jobs:
             # echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
             # echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
             # echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
-            # cat backend/.env
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       # - persist_to_workspace:
