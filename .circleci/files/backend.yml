@@ -33,7 +33,7 @@ Resources:
       # Ubuntu 18 or higher works fine
       ImageId: ami-053b0d53c279acc90
       Tags:
-        - Key: Name
+        - Key: udacity
           Value: !Sub backend-${ID}
   EC2InstanceEIP:
     Type: AWS::EC2::EIP
