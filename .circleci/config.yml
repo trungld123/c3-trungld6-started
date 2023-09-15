@@ -66,15 +66,13 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          working_directory: ./backend
           when: on_fail
           command: |
             SUCCESS=$(curl --insecure https://kvdb.io/MYYE4YgXbXaT7NM7vnxjhk/migration_<< parameters.id >>)
             echo $SUCCESS
             if [[ "$SUCCESS" == "1" ]]
             then
-              pwd
-              ls -la
+              cd ~/project/backend
               npm install
               npm run migration:revert
             fi
@@ -252,7 +250,7 @@ jobs:
       - install_awscli
       - install_ansible
       - add_ssh_keys:
-          fingerprints: [6d:28:2f:3f:e7:9a:e3:d0:47:40:fc:a5:d6:d9:2d:eb]
+          fingerprints: ["6d:28:2f:3f:e7:9a:e3:d0:47:40:fc:a5:d6:d9:2d:eb"]
       - attach_workspace:
           at: ./workspace
       - run:
@@ -277,7 +275,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - install_awscli
@@ -298,10 +296,14 @@ jobs:
             then
               curl https://kvdb.io/MYYE4YgXbXaT7NM7vnxjhk/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   deploy-frontend:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/base:stable
     steps:
       - checkout
       - install_awscli
@@ -319,7 +321,7 @@ jobs:
             export BACKEND_IP=$(
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --filters "Name=tag:aws:cloudformation:stack-name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL=${API_URL}"
@@ -347,7 +349,7 @@ jobs:
       - install_ansible
       - install_nodejs
       - add_ssh_keys:
-          fingerprints: [6d:28:2f:3f:e7:9a:e3:d0:47:40:fc:a5:d6:d9:2d:eb]
+          fingerprints: ["6d:28:2f:3f:e7:9a:e3:d0:47:40:fc:a5:d6:d9:2d:eb"]
       - attach_workspace:
           at: ~/
       - restore_cache:
@@ -361,11 +363,10 @@ jobs:
           name: Package Backend
           command: |
             cd backend
-            npm install
             npm run build
-            tar -czf artifact.tar.gz dist/* package*
+            tar -czvf artifact.tar.gz dist/* package*
             cd ..
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+            cp artifact.tar.gz .circleci/ansible/roles/deploy/files
       - run:
           name: Deploy backend
           command: |
@@ -497,5 +498,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
