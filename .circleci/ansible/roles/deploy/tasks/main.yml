@@ -1,25 +1,32 @@
 ---
-- name: Creates director
+- name: "Create directory for backend"
   file:
-    path: /home/ubuntu/udacity
+    path: ~/backend-app
     state: directory
-    mode: 0777
 
-- name: Copy compressed backend folder
-  copy:
-    src: artifact.tar.gz
-    dest: /home/ubuntu/udacity/artifact.tar.gz
-
-- name: Extract backend
+- name: "Unarchive backend files"
   unarchive:
-    remote_src: yes
-    src: /home/ubuntu/udacity/artifact.tar.gz
-    dest: /home/ubuntu/udacity
+    src: artifact.tar.gz
+    dest: ~/backend-app
 
-- name: Run the web server
-  shell:
-    cmd: |
-      cd /home/ubuntu/udacity
-      npm install
-      pm2 stop default
-      pm2 start npm -- start
+- name: "Install dependencies"
+  shell: |
+    cd ~/backend-app
+    npm i
+
+- name: "Start backend application with PM2"
+  shell: |
+    cd ~/backend-app/
+    pm2 stop default
+    pm2 delete default
+    pm2 start npm -- start
+  register: execute_node
+
+- name: print message
+  debug:
+    msg: "{{ execute_node.stdout_lines }}"
+
+- name: "Configure pm2 to start as service"
+  become: true
+  shell: |
+    env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
