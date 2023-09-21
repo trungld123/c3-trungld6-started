@@ -41,7 +41,7 @@ commands:
           when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS=$(curl --insecure https://kvdb.io/MYYE4YgXbXaT7NM7vnxjhk/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            SUCCESS=$(curl --insecure https://kvdb.io/KjmQczJk8bmTy6nU33a8NR/migration_${CIRCLE_WORKFLOW_ID:0:7})
             echo $SUCCESS
             if [[ "${SUCCESS}" == "1" ]]
             then
@@ -209,14 +209,14 @@ jobs:
   configure-infrastructure:
     docker:
       # Docker image here that supports Ansible
-      - image: python:3.7-alpine3.16
+      - image: cimg/base:stable
     steps:
       # Checkout code from git
       - checkout
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
-            - "6d:28:2f:3f:e7:9a:e3:d0:47:40:fc:a5:d6:d9:2d:eb"
+            - "3a:4a:f0:9a:92:e4:52:30:8f:95:72:3a:b5:cc:cb:c3"
       - attach_workspace:
           at: ~/
       - run:
@@ -288,7 +288,7 @@ jobs:
             # Your code here
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl --insecure https://kvdb.io/MYYE4YgXbXaT7NM7vnxjhk/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl --insecure https://kvdb.io/KjmQczJk8bmTy6nU33a8NR/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
@@ -350,7 +350,7 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
-            - "6d:28:2f:3f:e7:9a:e3:d0:47:40:fc:a5:d6:d9:2d:eb"
+            - "3a:4a:f0:9a:92:e4:52:30:8f:95:72:3a:b5:cc:cb:c3"
       - attach_workspace:
           at: ~/
       - run:
@@ -432,7 +432,7 @@ jobs:
             echo $URL
             if curl -s ${URL} | grep "Welcome"
             then
-              exit 0
+              exit 1
             else
               exit 1
             fi
@@ -444,7 +444,7 @@ jobs:
   cloudfront-update:
     docker:
       # Docker image here that supports AWS CLI
-      - image: cimg/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
@@ -465,6 +465,7 @@ jobs:
             --no-paginate --output text)
             echo $OldWorkflow_ID > ~/OldWorkflow_ID.txt
             cat ~/OldWorkflow_ID.txt
+            https://kvdb.io/KjmQczJk8bmTy6nU33a8NR/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "${OldWorkflow_ID}"
 
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
@@ -487,7 +488,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "6d:28:2f:3f:e7:9a:e3:d0:47:40:fc:a5:d6:d9:2d:eb"
+            - "3a:4a:f0:9a:92:e4:52:30:8f:95:72:3a:b5:cc:cb:c3"
       - run:
           name: Install dependencies
           command: |
