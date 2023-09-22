@@ -1,0 +1,12 @@
+1. Public Url to GitHub repository  (not private) [URL01]:
+https://github.com/qdunggs95/AWS_Project_3
+
+2. Public URL for your S3 Bucket (aka, your green candidate front-end) [URL02]:
+http://udapeople-488c746.s3-website-us-east-1.amazonaws.com/#/employees
+
+3. Public URL for your CloudFront distribution (aka, your blue production front-end) [URL03]:
+http://d3vshsjzbnlfuf.cloudfront.net/#/employees
+
+4. Public URLs to deployed application back-end in EC2 [URL04]:
+[URL04-1] http://ec2-3-221-76-123.compute-1.amazonaws.com:3030/api/status
+[URL04-2] http://3.221.76.123:3030/api/status
