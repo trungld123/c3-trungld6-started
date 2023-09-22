@@ -322,7 +322,7 @@ jobs:
       - run:
           name: Update frontend API_URL
           command: |
-            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            echo API_URL="http://$BACKEND_IP:3030" >> frontend/.env
       - run:
           name: Print updated .env
           command: |
