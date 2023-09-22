@@ -309,26 +309,24 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
+          name: Install dependencies
+          command: |
+            cd frontend
+            npm install
+      - run:
           name: Get backend url
           command: |
-            BACKEND_IP=$(
+            export BACKEND_IP=$(
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL=${API_URL}"
-
-      - run:
-          name: Update frontend API_URL
-          command: |
-            echo API_URL="http://$BACKEND_IP:3030" >> frontend/.env
-      - run:
-          name: Print updated .env
-          command: |
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
       - run:
-          name: Rebuild frontend
+          name: Deploy frontend objects
           command: |
             cd frontend
             npm install
@@ -491,9 +489,9 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-backend:
-          requires: [run-migrations]
       - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
