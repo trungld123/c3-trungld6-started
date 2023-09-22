@@ -309,11 +309,6 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
-          command: |
-            cd frontend
-            npm install
-      - run:
           name: Get backend url
           command: |
             export BACKEND_IP=$(
