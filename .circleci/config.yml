@@ -276,7 +276,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "ab:52:25:68:df:4c:3a:d5:48:18:55:d8:f9:3b:df:de"
+            - "3a:4a:f0:9a:92:e4:52:30:8f:95:72:3a:b5:cc:cb:c3"
       - run:
           name: Install dependencies
           command: |
@@ -369,18 +369,18 @@ jobs:
       - run:
           name: Get old stack workflow id and remove stacks
           command: |
-            echo <<pipeline.parameters.workflow_id>>
-            export OldWorkflowID=<<pipeline.parameters.workflow_id>>
-            export STACKS=$(aws cloudformation list-stacks \
-            --query "StackSummaries[*].StackName" \
-            --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            then
-              echo "----------cleaning up stacks------------"
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-            fi
+            # echo <<pipeline.parameters.workflow_id>>
+            # export OldWorkflowID=<<pipeline.parameters.workflow_id>>
+            # export STACKS=$(aws cloudformation list-stacks \
+            # --query "StackSummaries[*].StackName" \
+            # --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+            # if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            # then
+            #   echo "----------cleaning up stacks------------"
+            #   aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+            #   aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+            #   aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+            # fi
   add-prometheus-node-exporter:
     docker:
       - image: python:3.7-alpine3.16
@@ -388,7 +388,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "ab:52:25:68:df:4c:3a:d5:48:18:55:d8:f9:3b:df:de"
+            - "3a:4a:f0:9a:92:e4:52:30:8f:95:72:3a:b5:cc:cb:c3"
       - run:
           name: Install dependencies
           command: |
