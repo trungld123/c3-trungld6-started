@@ -118,7 +118,7 @@ Resources:
         - DeviceName: /dev/sda1
           Ebs:
             VolumeType: gp2
-            VolumeSize: '20'
+            VolumeSize: "20"
             DeleteOnTermination: true
             Encrypted: false
       UserData:
@@ -295,11 +295,11 @@ Resources:
   IAMUser:
     Type: AWS::IAM::User
     Properties:
-      Path: '/'
+      Path: "/"
       Policies:
         - PolicyName: AmazonEC2ReadOnlyAccess
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
@@ -309,7 +309,7 @@ Resources:
                   - cloudwatch:Get*
                   - cloudwatch:Describe*
                   - autoscaling:Describe*
-                Resource: '*'
+                Resource: "*"
   IAMUserAccessKey:
     Type: AWS::IAM::AccessKey
     Properties:
@@ -325,15 +325,15 @@ Outputs:
   PrometheusEndpoint:
     Description: Prometheus Endpoint
     Value:
-      !Join ['', ['http://', !GetAtt prometheusInstance.PublicDnsName, ':9090']]
+      !Join ["", ["http://", !GetAtt prometheusInstance.PublicDnsName, ":9090"]]
   PrometheusNodeExporterEndpoint:
     Description: Prometheus Node Exporter Endpoint
     Value:
-      !Join ['', ['http://', !GetAtt prometheusInstance.PublicDnsName, ':9100']]
+      !Join ["", ["http://", !GetAtt prometheusInstance.PublicDnsName, ":9100"]]
   PrometheusAlertManagerEndpoint:
     Description: Prometheus Alert Manager Endpoint
     Value:
-      !Join ['', ['http://', !GetAtt prometheusInstance.PublicDnsName, ':9093']]
+      !Join ["", ["http://", !GetAtt prometheusInstance.PublicDnsName, ":9093"]]
   AccessKeyID:
     Description: Access Key for IAMUser
     Value: !Ref IAMUserAccessKey
