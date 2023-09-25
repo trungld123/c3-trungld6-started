@@ -1,35 +1,43 @@
 ---
-- name: "update and upgrade packages."
-  become: yes
+- name: "upgrade packages."
+  become: true
   apt:
-    upgrade: yes
-    update_cache: yes
-    cache_valid_time: 86400
-- name: remove unneeded deps
-  become: yes
-  apt:
-    autoremove: yes
-- name: install deps
-  become: yes
+    upgrade: "yes"
+
+- name: "install dependencies."
+  become: true
   apt:
     name: ["nodejs", "npm"]
     state: latest
     update_cache: yes
-- name: install pm2
-  become: yes
+
+- name: "install pm2"
+  become: true
   npm:
     name: pm2
     global: yes
-    state: latest
     production: yes
-- name: extract artifact
-  become: yes
+    state: present
+
+- name: extract artifact 4
+  become: true
   unarchive:
     src: files/artifact.tar.gz
     dest: .
 
-- name: start app
+- name: Executing node 2
+  become: true
+  shell: |
+    npm install
+    pm2 stop default
+    pm2 start npm -- start
+  register: execute_node
+
+- name: "Set pm2 start as service"
   become: yes
   shell: |
-    pm2 delete all
-    pm2 start npm -- start
+    env PATH=$PATH:/usr/local/bin pm2 startup -u ubuntu --hp /home/ubuntu
+
+- name: print message
+  debug:
+    msg: "{{ execute_node.stdout_lines }}"
